@@ -1,0 +1,7 @@
+# Ignore the build directory
+target/
+# Ignore the built image
+*.iso
+
+# Ignore IntelliJ project files
+.idea/
