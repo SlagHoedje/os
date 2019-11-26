@@ -235,8 +235,8 @@ pub enum FileType {
     File,
     Directory,
     SymbolicLink,
-    /*CharDevice,
-    BlockDevice,
+    CharDevice,
+    /*BlockDevice,
     NamedPipe,
     Socket,*/
 }

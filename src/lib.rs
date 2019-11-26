@@ -23,6 +23,8 @@ use alloc::vec;
 
 use linked_list_allocator::LockedHeap;
 
+use fs::dev::DevFS;
+use fs::dev::zeronull::ZeroNullDevice;
 use fs::mount::MountFS;
 use fs::ramdisk::Ramdisk;
 use fs::vfs::{FileSystem, FileType, INode};
@@ -102,12 +104,17 @@ pub extern "C" fn kmain(multiboot_information_address: usize) -> ! {
     let root_ramdisk = Ramdisk::new();
     {
         root_ramdisk.root().create("tmp", FileType::Directory, 0o666).unwrap();
+        root_ramdisk.root().create("dev", FileType::Directory, 0o666).unwrap();
         let text_node = root_ramdisk.root().create("text.txt", FileType::File, 0o777).unwrap();
         text_node.write_at(0, b"test file").unwrap();
     }
 
     let root = MountFS::new(root_ramdisk.clone());
     root.root().find("tmp").unwrap().mount(ramdisk.clone()).unwrap();
+    let devfs = DevFS::new();
+    root.root().find("dev").unwrap().mount(devfs.clone()).unwrap();
+    devfs.add("null", ZeroNullDevice::new(devfs.clone(), true)).unwrap();
+    devfs.add("zero", ZeroNullDevice::new(devfs.clone(), false)).unwrap();
 
     {
         let new_inode = root.root().find("text.txt").unwrap();
@@ -133,6 +140,7 @@ pub extern "C" fn kmain(multiboot_information_address: usize) -> ! {
     let root_inode: Arc<dyn INode> = root.root();
     kprintln!("files: {:?}", root_inode.list());
     kprintln!("files /tmp: {:?}", root_inode.find("tmp").unwrap().list());
+    kprintln!("files /dev: {:?}", root_inode.find("dev").unwrap().list());
 
     x86_64::instructions::hlt_loop()
 }
