@@ -39,6 +39,7 @@ pub fn init() {
         let mut gdt = GlobalDescriptorTable::new();
 
         code_selector = gdt.add_entry(Descriptor::kernel_code_segment());
+        gdt.add_entry(Descriptor::kernel_data_segment());
         tss_selector = gdt.add_entry(Descriptor::tss_segment(tss));
 
         gdt
@@ -46,9 +47,9 @@ pub fn init() {
 
     crate::kprintln!("Loading GDT...");
     crate::x86_64::instructions::tables::load_gdt(gdt.pointer());
+    CodeSegment::write(code_selector);
 
     crate::kprintln!("Loading TSS...");
-    CodeSegment::write(code_selector);
     crate::x86_64::instructions::tables::load_tss(tss_selector); // TODO: Stack Overflow still doesn't work
 
     let idt = IDT.call_once(|| {

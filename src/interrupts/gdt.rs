@@ -86,6 +86,13 @@ impl Descriptor {
         Descriptor::UserSegment(flags.bits())
     }
 
+    pub fn kernel_data_segment() -> Descriptor {
+        let flags = DescriptorFlags::UserSegment | DescriptorFlags::Present |
+            DescriptorFlags::LongMode;
+
+        Descriptor::UserSegment(flags.bits())
+    }
+
     pub fn tss_segment(tss: &'static TaskStateSegment) -> Descriptor {
         let ptr = tss as *const _ as u64;
 
