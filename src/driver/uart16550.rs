@@ -5,7 +5,7 @@ use spin::Mutex;
 
 use x86_64::port::Port;
 
-pub const UART: Mutex<UART16550> = Mutex::new(UART16550::new(0x3F8));
+pub static UART: Mutex<UART16550> = Mutex::new(UART16550::new(0x3F8));
 
 flags! {
     enum LineStsFlags: u8 {

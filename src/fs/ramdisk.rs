@@ -116,7 +116,7 @@ impl INode for LockedRamdiskINode {
 
     fn metadata(&self) -> Result<INodeMetadata> {
         let file = self.read();
-        let mut metadata = file.metadata.clone();
+        let mut metadata = file.metadata;
         metadata.size = file.content.len();
         Ok(metadata)
     }
@@ -224,7 +224,7 @@ impl INode for LockedRamdiskINode {
         let other = file.children.get(name)
             .ok_or(FsError::EntryNotFound)?;
 
-        if other.read().children.len() > 0 {
+        if !other.read().children.is_empty() {
             return Err(FsError::DirectoryNotEmpty);
         }
 

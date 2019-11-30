@@ -32,8 +32,8 @@ pub fn panic(panic: PanicType) -> ! {
 
     match panic {
         PanicType::KernelAssert(info) => {
-            let message = info.message().map(|m| *m)
-                .unwrap_or(format_args!("No message."));
+            let message = info.message().copied()
+                .unwrap_or_else(|| format_args!("No message."));
             kprintln!("\x1b[37m// \x1b[97m{}", message);
 
             if let Some(location) = info.location() {

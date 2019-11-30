@@ -7,6 +7,8 @@
 #![feature(asm)]
 #![no_std]
 
+#![allow(clippy::new_without_default)]
+
 extern crate alloc;
 extern crate bit_field;
 extern crate flagset;
@@ -109,8 +111,8 @@ pub extern "C" fn kmain(multiboot_information_address: usize) -> ! {
         text_node.write_at(0, b"test file").unwrap();
     }
 
-    let root = MountFS::new(root_ramdisk.clone());
-    root.root().find("tmp").unwrap().mount(ramdisk.clone()).unwrap();
+    let root = MountFS::new(root_ramdisk);
+    root.root().find("tmp").unwrap().mount(ramdisk).unwrap();
     let devfs = DevFS::new();
     root.root().find("dev").unwrap().mount(devfs.clone()).unwrap();
     devfs.add("null", ZeroNullDevice::new(devfs.clone(), true)).unwrap();

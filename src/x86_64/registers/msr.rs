@@ -40,7 +40,7 @@ impl MSR {
 pub struct EFER;
 
 impl EFER {
-    pub const MSR_REG: u64 = 0xc0000080;
+    pub const MSR_REG: u64 = 0xc000_0080;
 
     pub fn read() -> FlagSet<EFERFlags> {
         FlagSet::new_truncated(MSR::read(EFER::MSR_REG))

@@ -94,8 +94,8 @@ impl <'a> Iterator for AnsiParseIterator<'a> {
 
                         self.attr_stack[current_index] = AttrStackEntry::Missing;
 
-                        if value.is_some() {
-                            return Some(AnsiSequencePart::SGR(value.unwrap()));
+                        if let Some(value) = value {
+                            return Some(AnsiSequencePart::SGR(value));
                         } else {
                             continue;
                         }

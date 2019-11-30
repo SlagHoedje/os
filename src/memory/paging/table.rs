@@ -6,6 +6,7 @@ use x86_64::VirtualAddress;
 use core::marker::PhantomData;
 use memory::frame::FrameAllocator;
 
+#[allow(clippy::inconsistent_digit_grouping)]
 pub const P4: *mut PageTable<Level4> = 0o177777_777_777_777_777_0000 as *mut _;
 
 pub struct Level4;

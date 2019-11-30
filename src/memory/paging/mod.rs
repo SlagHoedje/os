@@ -105,23 +105,23 @@ impl Page {
         Page((address.as_u64() as usize) / PAGE_SIZE)
     }
 
-    pub fn start_address(&self) -> VirtualAddress {
+    pub fn start_address(self) -> VirtualAddress {
         VirtualAddress::new((self.0 * PAGE_SIZE) as u64)
     }
 
-    fn p4_index(&self) -> usize {
+    fn p4_index(self) -> usize {
         (self.0 >> 27) & 0o777
     }
 
-    fn p3_index(&self) -> usize {
+    fn p3_index(self) -> usize {
         (self.0 >> 18) & 0o777
     }
 
-    fn p2_index(&self) -> usize {
+    fn p2_index(self) -> usize {
         (self.0 >> 9) & 0o777
     }
 
-    fn p1_index(&self) -> usize {
+    fn p1_index(self) -> usize {
         self.0 & 0o777
     }
 
@@ -143,7 +143,7 @@ impl Iterator for PageIter {
 
     fn next(&mut self) -> Option<Page> {
         if self.start.0 <= self.end.0 {
-            let page = self.start.clone();
+            let page = self.start;
             self.start.0 += 1;
             Some(page)
         } else {
