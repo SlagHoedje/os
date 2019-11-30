@@ -40,6 +40,8 @@ $(kernel): kernel $(rust_obj) $(asm_obj) $(linker_script)
 	@ld -n --gc-sections --strip-debug -T $(linker_script) -o $(kernel) $(asm_obj) $(rust_obj)
 
 kernel:
+	@echo "[cargo clippy]"
+	@cmd.exe /V /C "set RUST_TARGET_PATH=E:/Programming/Rust/os&& $(cargo) xclippy --target $(target)"
 	@echo "[cargo]"
 	@cmd.exe /V /C "set RUST_TARGET_PATH=E:/Programming/Rust/os&& $(cargo) xbuild --target $(target)"
 
