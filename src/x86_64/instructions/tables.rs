@@ -1,5 +1,5 @@
 use x86_64::VirtualAddress;
-use interrupts::gdt::SegmentSelector;
+//use interrupts::gdt::SegmentSelector;
 
 #[repr(C, packed)]
 pub struct DescriptorTablePointer {
@@ -24,6 +24,6 @@ pub fn load_gdt(ptr: DescriptorTablePointer) {
     unsafe { asm!("lgdt [$0]" :: "r" (&ptr) : "memory" : "intel") };
 }
 
-pub fn load_tss(selector: SegmentSelector) {
-    unsafe { asm!("ltr $0" :: "r" (selector.0)) };
-}
+//pub fn load_tss(selector: SegmentSelector) {
+//    unsafe { asm!("ltr $0" :: "r" (selector.0)) };
+//}

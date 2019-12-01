@@ -1,5 +1,6 @@
 #![feature(alloc_error_handler)]
 #![feature(panic_info_message)]
+#![feature(alloc_layout_extra)]
 #![feature(abi_x86_interrupt)]
 #![feature(core_intrinsics)]
 #![feature(ptr_internals)]
@@ -56,6 +57,11 @@ pub extern "C" fn kmain(multiboot_information_address: usize) -> ! {
 
     kprintln!("\x1b[92m- \x1b[97mLoading interrupts...");
     interrupts::init();
+
+    unsafe {
+        asm!("mov r14, 420" :::: "intel" "volatile");
+        asm!("int3");
+    }
 
     kprintln!("\x1b[92m- \x1b[97mLoading multiboot information structure...");
     let boot_info = unsafe { multiboot2::load(multiboot_information_address) };

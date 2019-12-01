@@ -2,6 +2,7 @@ use memory::frame::FrameAllocator;
 use memory::paging::{ActivePageTable, Page};
 use memory::paging::entry::EntryFlags;
 use x86_64::VirtualAddress;
+use core::alloc::{Layout, GlobalAlloc};
 
 pub mod frame;
 pub mod paging;
@@ -10,6 +11,22 @@ pub const PAGE_SIZE: usize = 4096;
 
 pub const HEAP_START: VirtualAddress = VirtualAddress::new(0x4444_4444_0000);
 pub const HEAP_SIZE: usize = 100 * 1024;
+
+/// A struct that represents a memory stack for a program or the kernel.
+pub struct Stack {
+    top: VirtualAddress,
+    bottom: VirtualAddress,
+}
+
+impl Stack {
+    pub fn top(&self) -> VirtualAddress {
+        self.top
+    }
+
+    pub fn bottom(&self) -> VirtualAddress {
+        self.bottom
+    }
+}
 
 pub fn init_heap<A>(active_table: &mut ActivePageTable, allocator: &mut A) where A: FrameAllocator {
     let page_range = {
@@ -29,4 +46,14 @@ pub fn init_heap<A>(active_table: &mut ActivePageTable, allocator: &mut A) where
     unsafe {
         crate::ALLOCATOR.lock().init(HEAP_START.as_u64() as usize, HEAP_SIZE);
     }
+}
+
+pub fn alloc_stack(size_in_pages: usize) -> Option<Stack> {
+    let ptr = unsafe { crate::ALLOCATOR.alloc(
+        Layout::array::<u8>(PAGE_SIZE * size_in_pages).ok()?
+    ) };
+
+    let bottom = VirtualAddress::from_ptr(ptr);
+    let top = VirtualAddress::new(ptr as u64 + (PAGE_SIZE * size_in_pages) as u64);
+    Some(Stack { top, bottom })
 }
