@@ -44,6 +44,7 @@ pub mod interrupts;
 pub mod x86_64;
 pub mod memory;
 pub mod fs;
+pub mod gdt;
 
 // TODO: Replace with custom implementation?
 /// Global heap allocator. Used for allocating things on the heap, like Vec and Box.
@@ -57,14 +58,8 @@ pub extern "C" fn kmain(multiboot_information_address: usize) -> ! {
     driver::vga::WRITER.lock().clear_screen();
 
     kprintln!("\x1b[92m- \x1b[97mLoading interrupts...");
+    gdt::init();
     interrupts::init();
-
-    unsafe { *(0xdead_beef as *mut _) = 42 };
-
-    //unsafe {
-    //    asm!("mov r14, 420" :::: "intel" "volatile");
-    //    asm!("int3");
-    //}
 
     kprintln!("\x1b[92m- \x1b[97mLoading multiboot information structure...");
     let boot_info = unsafe { multiboot2::load(multiboot_information_address) };

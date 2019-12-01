@@ -3,7 +3,6 @@ use spin::Once;
 use interrupts::idt::InterruptDescriptorTable;
 use x86_64::instructions::tables::load_idt;
 use x86_64::VirtualAddress;
-use x86_64::registers::control::Cr2;
 
 pub mod idt;
 pub mod exceptions;
@@ -140,7 +139,7 @@ pub fn init() {
         idt.set_handler(0x05, idt_handler!(0x05, bound_range_handler));
         idt.set_handler(0x06, idt_handler!(0x06, invalid_opcode_handler));
         idt.set_handler(0x07, idt_handler!(0x07, device_not_available_handler));
-        idt.set_handler(0x08, idt_handler_error_code!(0x08, double_fault_handler));
+        idt.set_handler(0x08, idt_handler_error_code!(0x08, double_fault_handler)).set_stack_index(0);
         idt.set_handler(0x0a, idt_handler_error_code!(0x0a, invalid_tss_handler));
         idt.set_handler(0x0b, idt_handler_error_code!(0x0b, segment_not_present_handler));
         idt.set_handler(0x0c, idt_handler_error_code!(0x0c, stack_segment_handler));
@@ -157,12 +156,4 @@ pub fn init() {
 
     crate::kprintln!("Loading IDT...");
     load_idt(idt.pointer());
-}
-
-pub extern "C" fn breakpoint_handler(stack_frame: &StackFrame) {
-    crate::kprintln!("breakpoint exception. \n{:#?}", stack_frame)
-}
-
-pub extern "C" fn page_fault_handler(stack_frame: &StackFrame) {
-    crate::kprintln!("page fault. \n{:#?} -> {:?}", stack_frame, Cr2::read())
 }

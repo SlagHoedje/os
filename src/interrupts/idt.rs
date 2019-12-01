@@ -1,6 +1,10 @@
-use bit_field::BitField;
-use x86_64::instructions::tables::DescriptorTablePointer;
 use core::mem::size_of;
+
+use bit_field::BitField;
+
+use gdt::SegmentSelector;
+use x86_64::instructions::tables::DescriptorTablePointer;
+use x86_64::registers::segment::CodeSegment;
 use x86_64::VirtualAddress;
 
 pub type HandlerFn = extern "C" fn() -> !;
@@ -15,7 +19,7 @@ impl InterruptDescriptorTable {
 
     pub fn set_handler(&mut self, entry: usize, handler: HandlerFn) -> &mut EntryOptions {
         // TODO: Get the proper code selector
-        self.0[entry] = Entry::new(8, handler);
+        self.0[entry] = Entry::new(CodeSegment::read(), handler);
         &mut self.0[entry].options
     }
 
@@ -31,7 +35,7 @@ impl InterruptDescriptorTable {
 #[derive(Debug, Copy, Clone)]
 pub struct Entry {
     pointer_low: u16,
-    gdt_selector: u16,
+    gdt_selector: SegmentSelector,
     options: EntryOptions,
     pointer_middle: u16,
     pointer_high: u32,
@@ -41,7 +45,7 @@ pub struct Entry {
 impl Entry {
     fn missing() -> Entry {
         Entry {
-            gdt_selector: 0,
+            gdt_selector: SegmentSelector(0),
             pointer_low: 0,
             pointer_middle: 0,
             pointer_high: 0,
@@ -50,7 +54,7 @@ impl Entry {
         }
     }
 
-    fn new(gdt_selector: u16, handler: HandlerFn) -> Entry {
+    fn new(gdt_selector: SegmentSelector, handler: HandlerFn) -> Entry {
         let pointer = handler as u64;
 
         Entry {
@@ -97,7 +101,7 @@ impl EntryOptions {
     }
 
     pub fn set_stack_index(&mut self, index: u16) -> &mut EntryOptions {
-        self.0.set_bits(0..3, index);
+        self.0.set_bits(0..3, index + 1);
         self
     }
 }
