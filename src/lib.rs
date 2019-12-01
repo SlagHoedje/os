@@ -9,6 +9,7 @@
 #![no_std]
 
 #![allow(clippy::new_without_default)]
+#![allow(clippy::fn_to_numeric_cast)]
 
 extern crate alloc;
 extern crate bit_field;
@@ -58,12 +59,12 @@ pub extern "C" fn kmain(multiboot_information_address: usize) -> ! {
     kprintln!("\x1b[92m- \x1b[97mLoading interrupts...");
     interrupts::init();
 
-    //unsafe { *(0xdeadbeef as *mut u64) = 42 };
+    unsafe { *(0xdead_beef as *mut _) = 42 };
 
-    unsafe {
-        asm!("mov r14, 420" :::: "intel" "volatile");
-        asm!("int3");
-    }
+    //unsafe {
+    //    asm!("mov r14, 420" :::: "intel" "volatile");
+    //    asm!("int3");
+    //}
 
     kprintln!("\x1b[92m- \x1b[97mLoading multiboot information structure...");
     let boot_info = unsafe { multiboot2::load(multiboot_information_address) };

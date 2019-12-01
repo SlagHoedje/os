@@ -6,11 +6,11 @@ use x86_64::VirtualAddress;
 pub type HandlerFn = extern "C" fn() -> !;
 
 #[repr(transparent)]
-pub struct InterruptDescriptorTable([Entry; 16]);
+pub struct InterruptDescriptorTable([Entry; 32]);
 
 impl InterruptDescriptorTable {
     pub fn new() -> InterruptDescriptorTable {
-        InterruptDescriptorTable([Entry::missing(); 16])
+        InterruptDescriptorTable([Entry::missing(); 32])
     }
 
     pub fn set_handler(&mut self, entry: usize, handler: HandlerFn) -> &mut EntryOptions {
