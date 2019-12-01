@@ -1,7 +1,7 @@
 #![feature(alloc_error_handler)]
 #![feature(panic_info_message)]
 #![feature(alloc_layout_extra)]
-#![feature(abi_x86_interrupt)]
+#![feature(naked_functions)]
 #![feature(core_intrinsics)]
 #![feature(ptr_internals)]
 #![feature(const_fn)]
@@ -57,6 +57,8 @@ pub extern "C" fn kmain(multiboot_information_address: usize) -> ! {
 
     kprintln!("\x1b[92m- \x1b[97mLoading interrupts...");
     interrupts::init();
+
+    //unsafe { *(0xdeadbeef as *mut u64) = 42 };
 
     unsafe {
         asm!("mov r14, 420" :::: "intel" "volatile");

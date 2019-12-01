@@ -23,7 +23,7 @@ clean:
 
 run: $(iso)
 	@echo " -- QEMU / SERIAL OUTPUT --"
-	@$(qemu) -sdl -cdrom $(iso) -s -serial stdio
+	@$(qemu) -cdrom $(iso) -s -serial stdio -sdl
 
 iso: $(iso)
 
