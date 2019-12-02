@@ -3,6 +3,8 @@ use spin::Once;
 use interrupts::idt::InterruptDescriptorTable;
 use x86_64::instructions::tables::load_idt;
 use x86_64::VirtualAddress;
+use x86_64::registers::segment::{CodeSegment, DataSegment};
+use gdt::SegmentSelector;
 
 pub mod idt;
 pub mod exceptions;
@@ -101,7 +103,7 @@ macro_rules! idt_handler_error_code {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct StackFrame {
     pub rbp: u64,
     pub r15: u64,
@@ -121,10 +123,24 @@ pub struct StackFrame {
     pub kind: u64,
     pub error_code: u64,
     pub instruction_pointer: VirtualAddress,
-    pub code_segment: u64,
+    pub code_segment: SegmentSelector,
     pub cpu_flags: u64,
     pub stack_pointer: VirtualAddress,
-    pub stack_segment: u64,
+    pub stack_segment: SegmentSelector,
+}
+
+impl StackFrame {
+    pub fn new(entry: VirtualAddress, stack_pointer: VirtualAddress) -> StackFrame {
+        StackFrame {
+            rbp: stack_pointer.as_u64(),
+            stack_pointer,
+            instruction_pointer: entry,
+            code_segment: CodeSegment::read(),
+            stack_segment: DataSegment::read(),
+            cpu_flags: 0x200,
+            ..Default::default()
+        }
+    }
 }
 
 pub fn init() {

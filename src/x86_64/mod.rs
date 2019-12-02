@@ -5,7 +5,7 @@ pub mod instructions;
 pub mod registers;
 pub mod port;
 
-#[derive(Copy, Clone)]
+#[derive(Default, Copy, Clone)]
 #[repr(transparent)]
 pub struct VirtualAddress(u64);
 
@@ -47,7 +47,7 @@ impl fmt::Debug for VirtualAddress {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Default, Copy, Clone)]
 #[repr(transparent)]
 pub struct PhysicalAddress(u64);
 

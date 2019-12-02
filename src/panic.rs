@@ -46,8 +46,8 @@ pub fn panic(panic: PanicType) -> ! {
             kprintln!("\n\x1b[91mStack Frame:");
 
             // TODO: Fix padding
-            kprintln!("\x1b[37mInstruction Pointer: \x1b[97m{:_<12?}\x1b[37m  Code Segment: \x1b[97m{}", stack_frame.instruction_pointer, stack_frame.code_segment);
-            kprintln!("\x1b[37mStack Pointer: \x1b[97m{:_<12?}\x1b[37m        Stack Segment: \x1b[97m{}", stack_frame.stack_pointer, stack_frame.stack_segment);
+            kprintln!("\x1b[37mInstruction Pointer: \x1b[97m{:_<12?}\x1b[37m  Code Segment: \x1b[97m{}", stack_frame.instruction_pointer, stack_frame.code_segment.0);
+            kprintln!("\x1b[37mStack Pointer: \x1b[97m{:_<12?}\x1b[37m        Stack Segment: \x1b[97m{}", stack_frame.stack_pointer, stack_frame.stack_segment.0);
             kprintln!("\x1b[37mCPU Flags: \x1b[97m0x{:x}", stack_frame.cpu_flags);
             kprintln!();
             kprintln!("\x1b[37mRAX: \x1b[97m0x{: <16x}  \x1b[37mRDI: \x1b[97m0x{: <16x}  \x1b[37mR12: \x1b[97m0x{: <16x}", stack_frame.rax, stack_frame.rdi, stack_frame.r12);

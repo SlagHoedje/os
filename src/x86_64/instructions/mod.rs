@@ -2,6 +2,7 @@ use x86_64::VirtualAddress;
 use x86_64::registers::control::Cr3;
 
 pub mod tables;
+pub mod interrupts;
 
 pub struct TLB;
 

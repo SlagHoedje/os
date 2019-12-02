@@ -47,7 +47,7 @@ impl TaskStateSegment {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Default, Debug, Copy, Clone)]
 #[repr(transparent)]
 pub struct SegmentSelector(pub u16);
 
@@ -142,9 +142,9 @@ impl Descriptor {
 }
 
 pub fn init() {
-    let mut code_selector = SegmentSelector(0);
-    let mut data_selector = SegmentSelector(0);
-    let mut tss_selector = SegmentSelector(0);
+    let mut code_selector = SegmentSelector::default();
+    let mut data_selector = SegmentSelector::default();
+    let mut tss_selector = SegmentSelector::default();
 
     let tss = TSS.call_once(|| {
         let mut tss = TaskStateSegment::new();

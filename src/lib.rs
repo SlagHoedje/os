@@ -45,6 +45,7 @@ pub mod x86_64;
 pub mod memory;
 pub mod fs;
 pub mod gdt;
+pub mod util;
 
 // TODO: Replace with custom implementation?
 /// Global heap allocator. Used for allocating things on the heap, like Vec and Box.

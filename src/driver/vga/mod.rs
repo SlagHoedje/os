@@ -2,11 +2,11 @@ use core::fmt;
 use core::fmt::Error;
 
 use lazy_static::lazy_static;
-use spin::Mutex;
 use volatile::Volatile;
 
 use driver::vga::ansi::{AnsiParseIterator, AnsiSequencePart};
 use driver::vga::color::{Color, ColorCode};
+use util::irq_lock::IrqLock;
 
 pub mod color;
 pub mod ansi;
@@ -14,7 +14,7 @@ pub mod ansi;
 lazy_static! {
     /// A locked instance of `ScreenWriter` to be used by the kernel. This is so you can safely
     /// print everything to the vga buffer without data races or importing anything.
-    pub static ref WRITER: Mutex<ScreenWriter> = Mutex::new(ScreenWriter::new());
+    pub static ref WRITER: IrqLock<ScreenWriter> = IrqLock::new(ScreenWriter::new());
 }
 
 /// A memory aligned struct to represent a character on the vga buffer. Contains the byte

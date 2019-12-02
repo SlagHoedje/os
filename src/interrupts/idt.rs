@@ -45,7 +45,7 @@ pub struct Entry {
 impl Entry {
     fn missing() -> Entry {
         Entry {
-            gdt_selector: SegmentSelector(0),
+            gdt_selector: SegmentSelector::default(),
             pointer_low: 0,
             pointer_middle: 0,
             pointer_high: 0,

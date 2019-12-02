@@ -1,11 +1,11 @@
 use core::fmt::{Error, Write};
 
 use flagset::{flags, FlagSet};
-use spin::Mutex;
 
 use x86_64::port::Port;
+use util::irq_lock::IrqLock;
 
-pub static UART: Mutex<UART16550> = Mutex::new(UART16550::new(0x3F8));
+pub static UART: IrqLock<UART16550> = IrqLock::new(UART16550::new(0x3F8));
 
 flags! {
     enum LineStsFlags: u8 {
