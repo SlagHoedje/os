@@ -14,6 +14,14 @@ pub fn disable() {
     }
 }
 
+pub fn with_disabled<T>(f: impl Fn() -> T) -> T {
+    disable();
+    let out = f();
+    enable();
+
+    out
+}
+
 pub fn are_enabled() -> bool {
     RFlags::read().contains(RFlags::InterruptFlag)
 }
