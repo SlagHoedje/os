@@ -36,6 +36,8 @@ use memory::frame::AreaFrameAllocator;
 use x86_64::PhysicalAddress;
 use x86_64::registers::control::{Cr0, Cr0Flags};
 use x86_64::registers::msr::{EFER, EFERFlags};
+use task::context::Context;
+use memory::alloc_stack;
 
 pub mod driver;
 pub mod macros;
@@ -46,6 +48,7 @@ pub mod memory;
 pub mod fs;
 pub mod gdt;
 pub mod util;
+pub mod task;
 
 // TODO: Replace with custom implementation?
 /// Global heap allocator. Used for allocating things on the heap, like Vec and Box.
@@ -149,5 +152,26 @@ pub extern "C" fn kmain(multiboot_information_address: usize) -> ! {
     kprintln!("files /tmp: {:?}", root_inode.find("tmp").unwrap().list());
     kprintln!("files /dev: {:?}", root_inode.find("dev").unwrap().list());
 
-    x86_64::instructions::hlt_loop()
+    kprintln!("\x1b[92m- \x1b[97mTesting context switching...");
+    let stack = alloc_stack(2).unwrap();
+    kprintln!("stack: {:?}", stack.top());
+    let ctx = Context::new(stack.top(), test_1 as u64);
+    Context::empty().switch_to(&ctx);
+
+    // Some inspiration: https://github.com/SerenityOS/serenity/blob/de7c54545a913d72fdd2620c833beeb00a9434d7/Kernel/Task.h
+
+    x86_64::instructions::hlt_loop();
+}
+
+extern "C" fn test_1() {
+    kprintln!("=> test 1");
+
+    let stack = alloc_stack(2).unwrap();
+    kprintln!("stack: {:?}", stack.top());
+    let ctx = Context::new(stack.top(), test_2 as u64);
+    Context::empty().switch_to(&ctx);
+}
+
+extern "C" fn test_2() {
+    kprintln!("=> test 2");
 }

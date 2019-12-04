@@ -1,5 +1,6 @@
 use core::fmt;
 use core::fmt::{Formatter, Error};
+use core::ops::{Add, Sub, AddAssign, SubAssign};
 
 pub mod instructions;
 pub mod registers;
@@ -44,6 +45,34 @@ impl From<VirtualAddress> for u64 {
 impl fmt::Debug for VirtualAddress {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         f.write_fmt(format_args!("V:{:#x}", self.0))
+    }
+}
+
+impl Add<u64> for VirtualAddress {
+    type Output = VirtualAddress;
+
+    fn add(self, rhs: u64) -> VirtualAddress {
+        VirtualAddress::new(self.as_u64() + rhs)
+    }
+}
+
+impl AddAssign<u64> for VirtualAddress {
+    fn add_assign(&mut self, rhs: u64) {
+        *self = *self + rhs
+    }
+}
+
+impl Sub<u64> for VirtualAddress {
+    type Output = VirtualAddress;
+
+    fn sub(self, rhs: u64) -> VirtualAddress {
+        VirtualAddress::new(self.as_u64() - rhs)
+    }
+}
+
+impl SubAssign<u64> for VirtualAddress {
+    fn sub_assign(&mut self, rhs: u64) {
+        *self = *self - rhs
     }
 }
 

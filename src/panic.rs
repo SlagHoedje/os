@@ -2,10 +2,9 @@ use alloc::alloc::Layout;
 use core::fmt;
 use core::panic::PanicInfo;
 
-use x86_64::VirtualAddress;
+use interrupts::StackFrame;
 
 use crate::kprintln;
-use interrupts::StackFrame;
 
 /// An enum to indicate what kind of panic has occurred. This is used in conjunction with the
 /// `panic::panic` function.
@@ -61,9 +60,6 @@ pub fn panic(panic: PanicType) -> ! {
                 kprintln!("\n\x1b[91mAdditional Info:");
                 kprintln!("{}", info);
             }
-
-            let test = 0;
-            kprintln!("\nStack variable pointer: {:?}", VirtualAddress::from_ptr(&test));
         },
         PanicType::AllocationError(layout) => {
             kprintln!("\x1b[37m// \x1b[97mAllocation error: {:?}", layout);
