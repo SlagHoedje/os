@@ -10,7 +10,7 @@ pub mod paging;
 pub const PAGE_SIZE: usize = 4096;
 
 pub const HEAP_START: VirtualAddress = VirtualAddress::new(0x4444_4444_0000);
-pub const HEAP_SIZE: usize = 100 * 1024;
+pub const HEAP_SIZE: usize = 1024 * 1024;
 
 /// A struct that represents a memory stack for a program or the kernel.
 pub struct Stack {
