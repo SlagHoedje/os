@@ -84,58 +84,64 @@ impl Context {
     /// Switch from this context to another context, saving all registers in this context.
     #[inline]
     pub fn switch_to(&mut self, next: &Context) {
-        crate::kprintln!("{:?}", next);
+        crate::kprintln!("{:?} -> {:?} | {:?}", next, self as *mut _, next as *const _);
         x86_64_context_switch(self as *mut _, next as *const _)
     }
 }
 
 #[naked]
 extern "C" fn x86_64_context_switch(prev: *mut Context, next: *const Context) {
-    // TODO: Don't use r14 and r15
-    // TODO: Remove unnecessary register saving due to C calling conventions
+    // 'prev' -> rdi  'next' -> rsi (x86_64 C calling convention)
+    // TODO: Remove unnecessary register saving due to C calling conventions (ex. rdi and rsi)
     unsafe {
-        asm!("pushfq
-              pop qword ptr [$0]
-              mov [$0 + 0x08], r15
-              mov [$0 + 0x10], r14
-              mov [$0 + 0x18], r13
-              mov [$0 + 0x20], r12
-              mov [$0 + 0x28], r11
-              mov [$0 + 0x30], r10
-              mov [$0 + 0x38], r9
-              mov [$0 + 0x40], r8
-              mov [$0 + 0x48], rdi
-              mov [$0 + 0x50], rsi
-              mov [$0 + 0x58], rdx
-              mov [$0 + 0x60], rcx
-              mov [$0 + 0x68], rbx
-              mov [$0 + 0x70], rax
-              mov [$0 + 0x78], rbp
+        asm!("// Copy all registers into 'prev'
+              pushfq
+              pop qword ptr [rdi]
+              mov [rdi + 0x08], r15
+              mov [rdi + 0x10], r14
+              mov [rdi + 0x18], r13
+              mov [rdi + 0x20], r12
+              mov [rdi + 0x28], r11
+              mov [rdi + 0x30], r10
+              mov [rdi + 0x38], r9
+              mov [rdi + 0x40], r8
+              mov [rdi + 0x48], rdi
+              mov [rdi + 0x50], rsi
+              mov [rdi + 0x58], rdx
+              mov [rdi + 0x60], rcx
+              mov [rdi + 0x68], rbx
+              mov [rdi + 0x70], rax
+              mov [rdi + 0x78], rbp
 
-              mov [$0 + 0x80], rsp
-              mov rsp, [$1 + 0x80]
+              // Switch around stack pointers
+              mov [rdi + 0x80], rsp
+              mov rsp, [rsi + 0x80]
 
-              mov rbp, [$1 + 0x78]
-              mov rax, [$1 + 0x70]
-              mov rbx, [$1 + 0x68]
-              mov rcx, [$1 + 0x60]
-              mov rdx, [$1 + 0x58]
-              mov rsi, [$1 + 0x50]
-              mov rdi, [$1 + 0x48]
-              mov r8, [$1 + 0x40]
-              mov r9, [$1 + 0x38]
-              mov r10, [$1 + 0x30]
-              mov r11, [$1 + 0x28]
-              mov r12, [$1 + 0x20]
-              mov r13, [$1 + 0x18]
-              mov r14, [$1 + 0x10]
-              //mov r15, [$1 + 0x08]
-              push [$1]
+              // Copy all registers from 'next'
+              mov rbp, [rsi + 0x78]
+              mov rax, [rsi + 0x70]
+              mov rbx, [rsi + 0x68]
+              mov rcx, [rsi + 0x60]
+              mov rdx, [rsi + 0x58]
+              // mov rsi, [rsi + 0x50]
+              // mov rdi, [rsi + 0x48]
+              mov r8, [rsi + 0x40]
+              mov r9, [rsi + 0x38]
+              mov r10, [rsi + 0x30]
+              mov r11, [rsi + 0x28]
+              mov r12, [rsi + 0x20]
+              mov r13, [rsi + 0x18]
+              mov r14, [rsi + 0x10]
+              mov r15, [rsi + 0x08]
+              push [rsi]
               popfq
 
-              push [$1 + 0x08]
-              pop r15"
-              :: "{r14}" (prev), "{r15}" (next) :: "intel", "volatile")
+              // Copy over rsi and rdi by pushing and popping the stack
+              push [rsi + 0x50]
+              push [rsi + 0x48]
+              pop rdi
+              pop rsi"
+              :::: "intel", "volatile")
     }
 }
 
