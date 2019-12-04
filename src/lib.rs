@@ -33,11 +33,13 @@ use fs::mount::MountFS;
 use fs::ramdisk::Ramdisk;
 use fs::vfs::{FileSystem, FileType, INode};
 use memory::frame::AreaFrameAllocator;
-use x86_64::PhysicalAddress;
+use x86_64::{PhysicalAddress, VirtualAddress};
 use x86_64::registers::control::{Cr0, Cr0Flags};
 use x86_64::registers::msr::{EFER, EFERFlags};
 use task::context::Context;
-use memory::alloc_stack;
+use memory::{HEAP_START, HEAP_SIZE};
+use memory::stack_allocator::StackAllocator;
+use memory::paging::Page;
 
 pub mod driver;
 pub mod macros;
@@ -153,7 +155,11 @@ pub extern "C" fn kmain(multiboot_information_address: usize) -> ! {
     kprintln!("files /dev: {:?}", root_inode.find("dev").unwrap().list());
 
     kprintln!("\x1b[92m- \x1b[97mTesting context switching...");
-    let stack = alloc_stack(2).unwrap();
+    let heap_end = VirtualAddress::new(HEAP_START.as_u64() + HEAP_SIZE as u64);
+    let heap_end_page = Page::containing_address(heap_end);
+    let mut stack_allocator = StackAllocator::new(Page::range_inclusive(Page(heap_end_page.0 + 1), Page(heap_end_page.0 + 101)));
+
+    let stack = stack_allocator.alloc_stack(&mut active_table, &mut frame_allocator, 4).unwrap();
     kprintln!("stack: {:?}", stack.top());
     let ctx = Context::new(stack.top(), test_1 as u64);
     Context::empty().switch_to(&ctx);
@@ -166,12 +172,5 @@ pub extern "C" fn kmain(multiboot_information_address: usize) -> ! {
 extern "C" fn test_1() {
     kprintln!("=> test 1");
 
-    let stack = alloc_stack(2).unwrap();
-    kprintln!("stack: {:?}", stack.top());
-    let ctx = Context::new(stack.top(), test_2 as u64);
-    Context::empty().switch_to(&ctx);
-}
-
-extern "C" fn test_2() {
-    kprintln!("=> test 2");
+    unsafe { asm!("int3") }
 }

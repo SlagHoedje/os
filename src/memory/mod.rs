@@ -2,10 +2,10 @@ use memory::frame::FrameAllocator;
 use memory::paging::{ActivePageTable, Page};
 use memory::paging::entry::EntryFlags;
 use x86_64::VirtualAddress;
-use core::alloc::{Layout, GlobalAlloc};
 
 pub mod frame;
 pub mod paging;
+pub mod stack_allocator;
 
 pub const PAGE_SIZE: usize = 4096;
 
@@ -46,14 +46,4 @@ pub fn init_heap<A>(active_table: &mut ActivePageTable, allocator: &mut A) where
     unsafe {
         crate::ALLOCATOR.lock().init(HEAP_START.as_u64() as usize, HEAP_SIZE);
     }
-}
-
-pub fn alloc_stack(size_in_pages: usize) -> Option<Stack> {
-    let ptr = unsafe { crate::ALLOCATOR.alloc(
-        Layout::array::<u8>(PAGE_SIZE * size_in_pages).ok()?
-    ) };
-
-    let bottom = VirtualAddress::from_ptr(ptr);
-    let top = VirtualAddress::new(ptr as u64 + (PAGE_SIZE * size_in_pages) as u64);
-    Some(Stack { top, bottom })
 }

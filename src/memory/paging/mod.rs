@@ -133,6 +133,7 @@ impl Page {
     }
 }
 
+#[derive(Clone)]
 pub struct PageIter {
     start: Page,
     end: Page,
