@@ -66,6 +66,7 @@ pub extern "C" fn kmain(multiboot_information_address: usize) -> ! {
     kprintln!("\x1b[92m- \x1b[97mLoading interrupts...");
     gdt::init();
     interrupts::init();
+    x86_64::instructions::interrupts::enable();
 
     kprintln!("\x1b[92m- \x1b[97mLoading multiboot information structure...");
     let boot_info = unsafe { multiboot2::load(multiboot_information_address) };

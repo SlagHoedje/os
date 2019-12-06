@@ -90,7 +90,7 @@ impl Context {
 }
 
 #[naked]
-extern "C" fn x86_64_context_switch(prev: *mut Context, next: *const Context) {
+extern "C" fn x86_64_context_switch(_prev: *mut Context, _next: *const Context) {
     // 'prev' -> rdi  'next' -> rsi (x86_64 C calling convention)
     // TODO: Remove unnecessary register saving due to C calling conventions (ex. rdi and rsi)
     unsafe {
